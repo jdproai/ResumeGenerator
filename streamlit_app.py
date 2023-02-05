@@ -1,57 +1,43 @@
 import openai
 import streamlit as st
-# import pyperclip
 
-# Step 1: Obtain OpenAI API key
-openai.api_key = st.secrets["API_Key"]
-# openai.api_key = ""
+# Replace the placeholder value with your own OpenAI API key
+openai.api_key = "your_openai_api_key_here"
 
-
-def generate_cover_letter(prompt, model, temperature, max_tokens):
+def generate_cover_letter(model, prompt, max_tokens):
     completions = openai.Completion.create(
         engine=model,
         prompt=prompt,
-        temperature=temperature,
         max_tokens=max_tokens,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
+        n=1,
+        stop=None,
+        temperature=0.5,
     )
+
     message = completions.choices[0].text
     return message
 
 def main():
-    st.set_page_config(page_title="GPT 求职信助手 OpenAI GPT Cover Letter Generator", page_icon=":guardsman:", layout="wide")
-    st.title("OpenAI GPT 求职信助手\nOpenAI GPT Cover Letter Generator")
-    st.markdown("根据你的能力以及职位要求，由 OpenAI GPT 帮助你生成一封专业的求职信。要想了解更多 -> https://axton.blog \n\n OpenAI GPT will help you generate a professional cover letter based on your profile and job description. To learn more -> https://axton.blog")
+    st.title("Cover Letter Generator")
+
+    # User inputs
+    name = st.text_input("Enter your name:")
+    phone = st.text_input("Enter your phone number:")
+    email = st.text_input("Enter your email address:")
+    work_experience = st.text_area("Enter your work experience:")
+    job_description = st.text_area("Enter job description:")
+
+    # Cover letter generation
+    model = "text-davinci-002"
+    max_tokens = 300
+    prompt = f"Please generate a cover letter for me. My name is {name}, and my phone number is {phone}. My email address is {email}. I have the following work experience: {work_experience}. The job description is: {job_description}"
+    cover_letter = generate_cover_letter(model, prompt, max_tokens)
+    st.write("Generated Cover Letter:", cover_letter)
     
-    # Get user input
-    user_profile = st.text_area("输入你的特长 Your Profile:")
-    job_description = st.text_area("输入职位要求 Job Description:")
-    prompt = (f"Write a cover letter for this job:\n{job_description}\n\nMy profile:\n{user_profile}")
-    # prompt = (f"请用中文帮我写一封求职信，我的能力描述以及工作经验：\n{user_profile}\n\n职位描述：\n{job_description}")
-    model = "text-davinci-003"
-    temperature = st.slider("选择随机值 Choose Temperature:", 0.0, 1.0, 0.7)
-    max_tokens = st.slider("选择求职信长度 Choose Max Tokens:", 50, 500, 1000)
+    # Saving the cover letter
+    if st.button("Download Cover Letter"):
+        with open("cover_letter.txt", "w") as file:
+            file.write(cover_letter)
 
-    if st.button("生成求职信 Generate"):
-        cover_letter = generate_cover_letter(prompt, model, temperature, max_tokens)
-        st.success("大功告成！求职信已经生成了！\n Success! Your Cover Letter is Ready")
-        st.markdown(cover_letter)
-        st.markdown("**点击以下按钮下载求职信 Click the Button to Download**")
-        
-        st.download_button(
-            label="下载求职信 Download",
-            data=cover_letter,
-            file_name='cover_letter.md',
-        )
-        
-        # if st.button("Download"):
-        #     with open("cover_letter.txt", "w") as f:
-        #         f.write(cover_letter)
-        #         f.close()
-        #         st.markdown("Your cover letter saved as **cover_letter.txt**")
-        #         st.markdown("You can also find the cover letter in the **Downloads** folder")
-
-if __name__== "__main__":
+if __name__ == "__main__":
     main()
