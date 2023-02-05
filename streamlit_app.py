@@ -28,7 +28,7 @@ def main():
     job_description = st.text_area("Enter job description:")
 
     # Cover letter generation
-    model = "text-davinci-002"
+    model = "text-davinci-003"
     max_tokens = 300
     prompt = f"Please generate a cover letter for me. My name is {name}, and my phone number is {phone}. My email address is {email}. I have the following work experience: {work_experience}. The job description is: {job_description}"
     cover_letter = generate_cover_letter(model, prompt, max_tokens)
